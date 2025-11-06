@@ -36,10 +36,13 @@ func main() {
 	// Initialize database
 	db, err := initDatabase(config.DatabaseURL)
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Printf("⚠️ WARNING: Failed to connect to database: %v", err)
+		log.Println("⚠️ Starting server WITHOUT database connection for debugging...")
+		db = nil // Continue without database
+	} else {
+		log.Println("Database connection successful!")
+		defer db.Close()
 	}
-	defer db.Close()
-	log.Println("Database connection successful!")
 
 	// Initialize services
 	authConfig := auth.NewAuthConfig(
