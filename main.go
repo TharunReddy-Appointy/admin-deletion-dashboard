@@ -106,14 +106,18 @@ func initDatabase(databaseURL string) (*sql.DB, error) {
 		return nil, fmt.Errorf("DATABASE_URL is required")
 	}
 
+	log.Printf("Opening database connection...")
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
+		log.Printf("❌ Failed to open database: %v", err)
 		return nil, err
 	}
 
-	// Test connection
+	log.Printf("Pinging database to test connection...")
+	// Test connection with timeout
 	if err := db.Ping(); err != nil {
-		return nil, err
+		log.Printf("❌ Failed to ping database: %v", err)
+		return nil, fmt.Errorf("database ping failed: %w", err)
 	}
 
 	log.Println("✅ Database connected successfully")
