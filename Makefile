@@ -11,11 +11,11 @@ help: ## Show this help
 
 build: ## Build the application
 	@echo "Building $(BINARY_NAME)..."
-	@go build -o $(BINARY_NAME) ./cmd/main
+	@go build -o $(BINARY_NAME) .
 
 run: ## Run the application locally
 	@echo "Running $(BINARY_NAME)..."
-	@go run ./cmd/main/main.go
+	@go run main.go
 
 test: ## Run tests
 	@echo "Running tests..."
