@@ -34,17 +34,9 @@ func main() {
 	config := loadConfig()
 	log.Printf("Config loaded - Port: %s, Environment: %s", config.Port, config.Environment)
 
-	log.Println("Connecting to database...")
-	// Initialize database
-	db, err := initDatabase(config.DatabaseURL)
-	if err != nil {
-		log.Printf("⚠️ WARNING: Failed to connect to database: %v", err)
-		log.Println("⚠️ Starting server WITHOUT database connection for debugging...")
-		db = nil // Continue without database
-	} else {
-		log.Println("Database connection successful!")
-		defer db.Close()
-	}
+	// TEMPORARY: Skip database connection for initial deployment
+	log.Println("⚠️ SKIPPING database connection (temporary for testing)")
+	var db *sql.DB = nil
 
 	// Initialize services
 	authConfig := auth.NewAuthConfig(
