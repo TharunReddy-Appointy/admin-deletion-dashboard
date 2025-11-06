@@ -18,7 +18,7 @@ import (
 	"go.appointy.com/admin-deletion-dashboard/internal/service"
 )
 
-//go:embed ../../web/*
+// go:embed ../../web/*
 var webFiles embed.FS
 
 func main() {
@@ -65,25 +65,25 @@ func main() {
 
 // Config holds application configuration
 type Config struct {
-	Port                 string
-	DatabaseURL          string
-	GoogleClientID       string
-	GoogleClientSecret   string
-	GoogleRedirectURL    string
-	JWTSecret            string
-	Environment          string
+	Port               string
+	DatabaseURL        string
+	GoogleClientID     string
+	GoogleClientSecret string
+	GoogleRedirectURL  string
+	JWTSecret          string
+	Environment        string
 }
 
 // loadConfig loads configuration from environment variables
 func loadConfig() Config {
 	return Config{
-		Port:                 getEnv("PORT", "8080"),
-		DatabaseURL:          getEnv("DATABASE_URL", ""),
-		GoogleClientID:       getEnv("GOOGLE_CLIENT_ID", ""),
-		GoogleClientSecret:   getEnv("GOOGLE_CLIENT_SECRET", ""),
-		GoogleRedirectURL:    getEnv("GOOGLE_REDIRECT_URL", "http://localhost:8080/api/auth/callback"),
-		JWTSecret:            getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
-		Environment:          getEnv("ENVIRONMENT", "development"),
+		Port:               getEnv("PORT", "8080"),
+		DatabaseURL:        getEnv("DATABASE_URL", ""),
+		GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
+		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
+		GoogleRedirectURL:  getEnv("GOOGLE_REDIRECT_URL", "http://localhost:8080/api/auth/callback"),
+		JWTSecret:          getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
+		Environment:        getEnv("ENVIRONMENT", "development"),
 	}
 }
 
