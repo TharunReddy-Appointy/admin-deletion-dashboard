@@ -27,15 +27,19 @@ func main() {
 		log.Println("No .env file found, using environment variables")
 	}
 
+	log.Println("Loading configuration...")
 	// Get configuration from environment
 	config := loadConfig()
+	log.Printf("Config loaded - Port: %s, Environment: %s", config.Port, config.Environment)
 
+	log.Println("Connecting to database...")
 	// Initialize database
 	db, err := initDatabase(config.DatabaseURL)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
 	defer db.Close()
+	log.Println("Database connection successful!")
 
 	// Initialize services
 	authConfig := auth.NewAuthConfig(
