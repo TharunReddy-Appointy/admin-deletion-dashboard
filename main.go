@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -34,9 +35,17 @@ func main() {
 	config := loadConfig()
 	log.Printf("Config loaded - Port: %s, Environment: %s", config.Port, config.Environment)
 
-	// TEMPORARY: Skip database connection for initial deployment
-	log.Println("⚠️ SKIPPING database connection (temporary for testing)")
-	var db *sql.DB = nil
+	log.Println("Connecting to database...")
+	// Initialize database
+	db, err := initDatabase(config.DatabaseURL)
+	if err != nil {
+		log.Printf("⚠️ WARNING: Failed to connect to database: %v", err)
+		log.Println("⚠️ Starting server WITHOUT database connection")
+		db = nil // Continue without database
+	} else {
+		log.Println("✅ Database connected successfully")
+		defer db.Close()
+	}
 
 	// Initialize services
 	authConfig := auth.NewAuthConfig(
@@ -104,20 +113,22 @@ func initDatabase(databaseURL string) (*sql.DB, error) {
 	}
 
 	log.Printf("Opening database connection...")
+	log.Printf("Database host: %s", maskPassword(databaseURL))
+
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
 		log.Printf("❌ Failed to open database: %v", err)
 		return nil, err
 	}
 
-	// Set connection timeouts
-	db.SetConnMaxLifetime(0)
+	// Set connection timeouts and limits
+	db.SetConnMaxLifetime(5 * time.Minute)
 	db.SetMaxIdleConns(2)
 	db.SetMaxOpenConns(5)
 
-	log.Printf("Pinging database to test connection (with 10s timeout)...")
+	log.Printf("Pinging database to test connection (with 15s timeout)...")
 	// Test connection with timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
@@ -127,6 +138,20 @@ func initDatabase(databaseURL string) (*sql.DB, error) {
 
 	log.Println("✅ Database connected successfully")
 	return db, nil
+}
+
+// maskPassword masks the password in the connection string for logging
+func maskPassword(connStr string) string {
+	// Simple masking: postgres://user:password@host:port/db -> postgres://user:***@host:port/db
+	if idx := strings.Index(connStr, "://"); idx != -1 {
+		afterProto := connStr[idx+3:]
+		if idx2 := strings.Index(afterProto, ":"); idx2 != -1 {
+			if idx3 := strings.Index(afterProto[idx2+1:], "@"); idx3 != -1 {
+				return connStr[:idx+3+idx2+1] + "***" + afterProto[idx2+1+idx3:]
+			}
+		}
+	}
+	return connStr
 }
 
 // setupRouter sets up the Gin router with all routes
