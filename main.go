@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -116,9 +118,17 @@ func initDatabase(databaseURL string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	log.Printf("Pinging database to test connection...")
+	// Set connection timeouts
+	db.SetConnMaxLifetime(0)
+	db.SetMaxIdleConns(2)
+	db.SetMaxOpenConns(5)
+
+	log.Printf("Pinging database to test connection (with 10s timeout)...")
 	// Test connection with timeout
-	if err := db.Ping(); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := db.PingContext(ctx); err != nil {
 		log.Printf("❌ Failed to ping database: %v", err)
 		return nil, fmt.Errorf("database ping failed: %w", err)
 	}
