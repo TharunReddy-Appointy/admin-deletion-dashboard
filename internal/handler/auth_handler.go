@@ -95,14 +95,8 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"token": jwtToken,
-		"user": gin.H{
-			"email":   userInfo.Email,
-			"name":    userInfo.Name,
-			"picture": userInfo.Picture,
-		},
-	})
+	// Redirect to frontend with token in URL fragment (will be picked up by React)
+	c.Redirect(http.StatusFound, "/?token="+jwtToken+"&email="+userInfo.Email+"&name="+userInfo.Name)
 }
 
 // HandleMe returns the current user's info

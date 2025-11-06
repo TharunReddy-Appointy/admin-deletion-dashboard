@@ -620,12 +620,19 @@
             const [loading, setLoading] = useState(true);
 
             useEffect(() => {
-                // Check for OAuth callback
+                // Check for token in URL (from OAuth callback redirect)
                 const params = new URLSearchParams(window.location.search);
-                const code = params.get('code');
+                const token = params.get('token');
+                const email = params.get('email');
+                const name = params.get('name');
 
-                if (code) {
-                    handleCallback(code, params.get('state'));
+                if (token) {
+                    // Store token and user info
+                    localStorage.setItem('token', token);
+                    setUser({ email, name });
+                    // Clean URL
+                    window.history.replaceState({}, document.title, '/');
+                    setLoading(false);
                 } else {
                     checkAuth();
                 }
