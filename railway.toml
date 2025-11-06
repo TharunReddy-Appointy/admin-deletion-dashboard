@@ -1,0 +1,12 @@
+# Railway.app configuration file
+# This file is optional but provides better control over the deployment
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "./admin-deletion-dashboard"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"

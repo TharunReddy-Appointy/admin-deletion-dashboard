@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Account Deletion Dashboard</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h1, h2, h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        input[type="email"],
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .group-list {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .group-item {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .group-item.selected {
+            border-color: #667eea;
+            background: #f3f4ff;
+        }
+
+        .group-item:hover {
+            border-color: #667eea;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .group-name {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .group-stats {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+
+        .login-card {
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .login-card h1 {
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .confirmation-modal {
+            background: rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .summary-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .summary-value {
+            color: #6b7280;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const API_BASE = '/api';
+
+        // Utility function for API calls
+        const apiCall = async (endpoint, options = {}) => {
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+                ...options.headers,
+            };
+
+            const response = await fetch(`${API_BASE}${endpoint}`, {
+                ...options,
+                headers,
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Request failed');
+            }
+
+            return response.json();
+        };
+
+        // Login Component
+        function LoginPage({ onLogin }) {
+            const [loading, setLoading] = useState(false);
+
+            const handleGoogleLogin = async () => {
+                setLoading(true);
+                try {
+                    const data = await apiCall('/auth/login');
+                    window.location.href = data.url;
+                } catch (error) {
+                    alert('Login failed: ' + error.message);
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="login-container">
+                    <div className="login-card">
+                        <h1>🔐 Admin Account Deletion</h1>
+                        <div className="card">
+                            <h2>Sign in with Google</h2>
+                            <p style={{ marginBottom: '20px', color: '#6b7280' }}>
+                                Only @appointy.com accounts are allowed
+                            </p>
+                            <button
+                                className="btn btn-primary"
+                                onClick={handleGoogleLogin}
+                                disabled={loading}
+                            >
+                                {loading ? 'Redirecting...' : 'Sign in with Google'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Main Dashboard Component
+        function Dashboard({ user, onLogout }) {
+            const [email, setEmail] = useState('');
+            const [accountData, setAccountData] = useState(null);
+            const [selectedGroups, setSelectedGroups] = useState([]);
+            const [reason, setReason] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [showConfirmation, setShowConfirmation] = useState(false);
+            const [message, setMessage] = useState(null);
+
+            const handleLookup = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setMessage(null);
+                setAccountData(null);
+                setSelectedGroups([]);
+
+                try {
+                    const data = await apiCall('/account/lookup', {
+                        method: 'POST',
+                        body: JSON.stringify({ email }),
+                    });
+                    setAccountData(data);
+                } catch (error) {
+                    setMessage({ type: 'error', text: error.message });
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const toggleGroupSelection = (groupId) => {
+                setSelectedGroups(prev =>
+                    prev.includes(groupId)
+                        ? prev.filter(id => id !== groupId)
+                        : [...prev, groupId]
+                );
+            };
+
+            const selectAllGroups = () => {
+                if (selectedGroups.length === accountData.groups.length) {
+                    setSelectedGroups([]);
+                } else {
+                    setSelectedGroups(accountData.groups.map(g => g.id));
+                }
+            };
+
+            const handleDeleteConfirm = async () => {
+                setShowConfirmation(false);
+                setLoading(true);
+
+                try {
+                    const result = await apiCall('/account/delete', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            email: accountData.email,
+                            user_id: accountData.user_id,
+                            group_ids: selectedGroups,
+                            reason,
+                        }),
+                    });
+
+                    setMessage({
+                        type: 'success',
+                        text: `Successfully deleted: ${result.deleted_groups} groups, ${result.deleted_companies} companies, ${result.deleted_locations} locations`
+                    });
+                    setAccountData(null);
+                    setSelectedGroups([]);
+                    setReason('');
+                    setEmail('');
+                } catch (error) {
+                    setMessage({ type: 'error', text: error.message });
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const getTotalCounts = () => {
+                if (!accountData) return { companies: 0, locations: 0 };
+                const selected = accountData.groups.filter(g => selectedGroups.includes(g.id));
+                return {
+                    companies: selected.reduce((sum, g) => sum + g.company_count, 0),
+                    locations: selected.reduce((sum, g) => sum + g.location_count, 0),
+                };
+            };
+
+            return (
+                <div className="container">
+                    <div className="card">
+                        <div className="header">
+                            <h1>🗑️ Account Deletion Dashboard</h1>
+                            <div className="user-info">
+                                <span>{user.email}</span>
+                                <button className="btn btn-secondary" onClick={onLogout}>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+
+                        {message && (
+                            <div className={`alert alert-${message.type}`}>
+                                {message.text}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleLookup}>
+                            <div className="form-group">
+                                <label>Account Email</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="user@example.com"
+                                    required
+                                    disabled={loading}
+                                />
+                            </div>
+                            <button type="submit" className="btn btn-primary" disabled={loading}>
+                                {loading ? 'Looking up...' : 'Lookup Account'}
+                            </button>
+                        </form>
+                    </div>
+
+                    {accountData && (
+                        <div className="card">
+                            <h2>Account Details</h2>
+                            <div className="summary-item">
+                                <div className="summary-label">User ID:</div>
+                                <div className="summary-value">{accountData.user_id}</div>
+                            </div>
+                            <div className="summary-item">
+                                <div className="summary-label">Name:</div>
+                                <div className="summary-value">
+                                    {accountData.first_name} {accountData.last_name}
+                                </div>
+                            </div>
+                            <div className="summary-item">
+                                <div className="summary-label">Email:</div>
+                                <div className="summary-value">{accountData.email}</div>
+                            </div>
+
+                            {accountData.groups.length > 0 ? (
+                                <>
+                                    <h3 style={{ marginTop: '30px' }}>
+                                        Groups ({accountData.groups.length})
+                                        <button
+                                            className="btn btn-secondary"
+                                            onClick={selectAllGroups}
+                                            style={{ marginLeft: '15px', padding: '8px 16px', fontSize: '12px' }}
+                                        >
+                                            {selectedGroups.length === accountData.groups.length ? 'Deselect All' : 'Select All'}
+                                        </button>
+                                    </h3>
+                                    <div className="group-list">
+                                        {accountData.groups.map(group => (
+                                            <div
+                                                key={group.id}
+                                                className={`group-item ${selectedGroups.includes(group.id) ? 'selected' : ''}`}
+                                                onClick={() => toggleGroupSelection(group.id)}
+                                            >
+                                                <div className="group-header">
+                                                    <div>
+                                                        <div className="group-name">{group.name}</div>
+                                                        <div className="group-stats">
+                                                            ID: {group.id}
+                                                        </div>
+                                                    </div>
+                                                    <input
+                                                        type="checkbox"
+                                                        className="checkbox"
+                                                        checked={selectedGroups.includes(group.id)}
+                                                        onChange={() => {}}
+                                                    />
+                                                </div>
+                                                <div className="group-stats">
+                                                    📊 {group.company_count} companies, {group.location_count} locations
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {selectedGroups.length > 0 && (
+                                        <>
+                                            <div className="form-group">
+                                                <label>Deletion Reason (optional)</label>
+                                                <textarea
+                                                    value={reason}
+                                                    onChange={(e) => setReason(e.target.value)}
+                                                    placeholder="Enter reason for deletion..."
+                                                />
+                                            </div>
+
+                                            <div className="alert alert-warning">
+                                                ⚠️ You are about to soft delete:<br/>
+                                                • {selectedGroups.length} group(s)<br/>
+                                                • {getTotalCounts().companies} company(ies)<br/>
+                                                • {getTotalCounts().locations} location(s)<br/>
+                                                • 1 user account
+                                            </div>
+
+                                            <button
+                                                className="btn btn-danger"
+                                                onClick={() => setShowConfirmation(true)}
+                                                disabled={loading}
+                                            >
+                                                Delete Selected
+                                            </button>
+                                        </>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="alert alert-warning">
+                                    No groups found for this user.
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {showConfirmation && (
+                        <div className="confirmation-modal" onClick={() => setShowConfirmation(false)}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                                <h2>⚠️ Confirm Deletion</h2>
+                                <p style={{ margin: '20px 0', color: '#6b7280' }}>
+                                    This action will soft delete the account and all selected hierarchy.
+                                    Are you absolutely sure?
+                                </p>
+                                <div className="summary-item">
+                                    <div className="summary-label">Target Email:</div>
+                                    <div className="summary-value">{accountData.email}</div>
+                                </div>
+                                <div className="summary-item">
+                                    <div className="summary-label">Groups to delete:</div>
+                                    <div className="summary-value">{selectedGroups.length}</div>
+                                </div>
+                                <div className="summary-item">
+                                    <div className="summary-label">Deleted by:</div>
+                                    <div className="summary-value">{user.email}</div>
+                                </div>
+                                <div className="modal-actions">
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={() => setShowConfirmation(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="btn btn-danger"
+                                        onClick={handleDeleteConfirm}
+                                    >
+                                        Confirm Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Main App Component
+        function App() {
+            const [user, setUser] = useState(null);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                // Check for OAuth callback
+                const params = new URLSearchParams(window.location.search);
+                const code = params.get('code');
+
+                if (code) {
+                    handleCallback(code, params.get('state'));
+                } else {
+                    checkAuth();
+                }
+            }, []);
+
+            const handleCallback = async (code, state) => {
+                try {
+                    const data = await apiCall(`/auth/callback?code=${code}&state=${state}`);
+                    localStorage.setItem('token', data.token);
+                    setUser(data.user);
+                    // Clean URL
+                    window.history.replaceState({}, document.title, '/');
+                } catch (error) {
+                    alert('Authentication failed: ' + error.message);
+                    window.location.href = '/';
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const checkAuth = async () => {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    setLoading(false);
+                    return;
+                }
+
+                try {
+                    const data = await apiCall('/auth/me');
+                    setUser(data);
+                } catch (error) {
+                    localStorage.removeItem('token');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleLogout = () => {
+                localStorage.removeItem('token');
+                setUser(null);
+            };
+
+            if (loading) {
+                return (
+                    <div className="loading">
+                        <div className="spinner"></div>
+                        <div>Loading...</div>
+                    </div>
+                );
+            }
+
+            if (!user) {
+                return <LoginPage onLogin={setUser} />;
+            }
+
+            return <Dashboard user={user} onLogout={handleLogout} />;
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
