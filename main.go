@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"log"
@@ -169,6 +170,25 @@ func setupRouter(authConfig *auth.Config, authHandler *handler.AuthHandler, acco
 	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "healthy"})
+	})
+
+	// IP check endpoint (to find Railway's outbound IP)
+	router.GET("/my-ip", func(c *gin.Context) {
+		// Try to get external IP
+		resp, err := http.Get("https://api.ipify.org?format=json")
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"error": "failed to get IP", "details": err.Error()})
+			return
+		}
+		defer resp.Body.Close()
+
+		var result map[string]interface{}
+		json.NewDecoder(resp.Body).Decode(&result)
+
+		c.JSON(http.StatusOK, gin.H{
+			"outbound_ip": result["ip"],
+			"request_ip": c.ClientIP(),
+		})
 	})
 
 	// API routes
